@@ -1,8 +1,12 @@
 import boto3
+import json
 
 def delete_vuelo(event, context):
-    # Obtener el ID del vuelo
-    id_vuelo = event['id_vuelo']
+    # Obtener el cuerpo de la solicitud y manejar el caso donde no haya cuerpo
+    body = json.loads(event.get('body', '{}'))  # Esto maneja el caso donde no haya un cuerpo válido
+    
+    # Obtener el ID del vuelo desde el cuerpo de la solicitud
+    id_vuelo = body.get('id_vuelo')
 
     # Conectar con DynamoDB
     dynamodb = boto3.resource('dynamodb')
@@ -17,5 +21,5 @@ def delete_vuelo(event, context):
 
     return {
         'statusCode': 200,
-        'body': f'Vuelo con id_vuelo={id_vuelo} eliminado correctamente.'
+        'body': json.dumps({'message': f'Vuelo con id_vuelo={id_vuelo} eliminado correctamente.'})
     }
