@@ -1,0 +1,62 @@
+org: mateoespinoza
+service: api-vuelo
+
+provider:
+  name: aws
+  runtime: python3.10
+  iam:
+    role: arn:aws:iam::399737753482:role/LabRole  # Aquí se asigna el ARN del rol LabRole
+
+  environment:
+    VUELOS_TABLE: ${self:custom.tables.vuelos}
+
+custom:
+  tables:
+    vuelos: t_vuelo
+
+resources:
+  Resources:
+    VuelosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tables.vuelos}
+        AttributeDefinitions:
+          - AttributeName: id_vuelo
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id_vuelo
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+functions:
+  create_vuelo:
+    handler: CrearVuelo.lambda_handler
+    events:
+      - http:
+          path: /vuelos
+          method: post
+          cors: true
+
+  delete_vuelo:
+    handler: DeleteVuelo.lambda_handler
+    events:
+      - http:
+          path: /vuelos/{id_vuelo}
+          method: delete
+          cors: true
+
+  update_vuelo:
+    handler: UpdateVuelo.lambda_handler
+    events:
+      - http:
+          path: /vuelos/{id_vuelo}
+          method: put
+          cors: true
+
+  search_vuelo:
+    handler: SearchVuelo.lambda_handler
+    events:
+      - http:
+          path: /vuelos/search
+          method: get
+          cors: true
